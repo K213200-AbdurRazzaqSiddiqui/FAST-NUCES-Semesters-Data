@@ -1,0 +1,269 @@
+﻿Abdur Razzaq Siddiqui
+21K-3200
+Section-5A
+Database Theory Assignment 1
+
+Question 1:  
+
+--> A database is like a big storage place for information. It's kind of like keeping your stuff in boxes on shelves, but these boxes are actually stored on computer disks or tapes. You can organize this information either as regular computer files or use special software called a database management system (DBMS). Using a DBMS has several benefits. First, it makes it easier to work with the data because you can change one thing without affecting everything else. It also helps you find and use the information faster. It saves time when building applications, keeps your data safe, and makes it easier to manage and control. And also multiple people can use the data at the same time, and if something goes wrong, there are ways to recover it. 
+But using a DBMS can be more expensive and complicated, so it's important to think about whether it's worth it for your needs. 
+
+
+--> A Database Administrator is responsible for designing schemas, ensuring security, ensuring data availability, and tuning the database to meet user requirements. They must also understand query optimization, as it is crucial for making good design and tuning decisions, even if they don't run their own queries.
+
+
+--> The data definition language (DDL) is important because it helps us describe how data is organized. It tells us about the different ways we can look at data, both FROM the outside and the inside.
+On the other hand, the data manipulation language (DML) is all about how we can work with data. It's like a tool that lets us get data in and out, and also change it if needed. 
+Lastly, the data model is like a blueprint that tells us how data is structured in a database system. It's like the design of a building, showing us how everything fits together.
+
+
+
+Question 2:
+
+
+1)
+SELECT DISTINCT S.name 
+FROM Class C, Student S, Faculty F, Enrolled E 
+WHERE E.snum = S.snum and E.cname = C.name and C.fid = F.fid and F.fname=’I.Tech’ and s.level= ‘JR’;
+
+
+2)
+SELECT DISTINCT MAX(age) FROM Student S
+JOIN Enrolled E ON E.sum=S.snum
+JOIN Class C on E.cname=C.name
+JOIN Faculty F ON C.fid=F.fid 
+WHERE  S.major=’History’ OR F.fname=’I.Tech’; 
+
+
+3)
+SELECT Distinct C.name FROM classes C 
+LEFT JOIN enrolled E ON C.name=E.cname
+WHERE C.room=’R-128’ OR ( SELECT count (*) FROM enrolled WHERE Cname=C.name)>=5;
+
+
+4)
+SELECT DISTINCT =  S.sname FROM Student S 
+JOIN Enrolled E1 on S.snum = E1.snum 
+JOIN Class C1 on E1.cname = C1.name
+JOIN Enrolled E2 on S.snum = E2.snum 
+JOIN Class C2 on E2.cname = C2.name 
+WHERE C1.meets_at = C2.meets_at AND C1.name <> C2.name;
+
+
+5) 
+SELECT F.name
+FROM faculty F
+WHERE not exists ((SELECT * FROM class C) except (SELECT C1.room FROM class C1
+WHERE C1.fid = F.fid)
+
+
+6)
+SELECT F.name
+FROM faculty F 
+WHERE (SELECT count (E.snum) FROM enrolled E, class C WHERE C.name = E.cname and C.fid = F.fid) < 5
+
+
+7)
+SELECT S.level, avg(S.age) FROM student S
+GROUP BY S.level
+
+
+8)
+SELECT S.level, avg(S.age) FROM student S
+GROUP BY S.level
+HAVING S.level <> ‘JR’
+
+
+9)
+SELECT F.name 
+FROM Faculty F, count(*)
+JOIN class C on C.fid = F.fid
+WHERE C.room = ‘R-128’
+GROUP BY F.fname
+
+
+10)
+SELECT * FROM Enrolled JOIN Students ON E.snum = S.snum
+GROUP BY e.snum ORDER BY count(*) desc limit 1;
+
+
+11)
+SELECT S.sname 
+FROM student S 
+WHERE S.snum NOT IN (SELECT E.snum FROM enrolled E);
+
+
+12)
+SELECT S.age, S.level
+FROM Student S
+GROUP BY S.age, S.level,
+HAVING S.level in (SELECT S1.level
+FROM Student S1
+WHERE S1.age = S.age
+GROUP BY S1.level, S1.age
+HAVING Count (*) >= ALL (SELECT Count(*)
+FROM Student S2
+WHERE S1.age = S2.age
+GROUP BY S2.level, S2.age))
+
+
+
+
+Question 3:
+
+
+1)
+SELECT A.aname
+FROM Aircraft A
+INNER JOIN  certified C on A.aid = C.aid
+INNER JOIN Employees E on E.eid = C.eid
+WHERE E.salary > 80000;
+
+
+2)
+SELECT C.eid, max(A.cruisingRange)
+FROM Certified 
+JOIN Aircraft A on A.aid = C.aid
+GROUP BY C.eid
+HAVING count (*) > 3;
+
+
+3)
+SELECT E.ename
+FROM Employees E
+WHERE E.salary ( SELECT min(price) FROM Flights WHERE FROM='Los Angeles' and to='Honolulu');
+
+
+4)
+SELECT E.ename
+FROM Employees 
+JOIN Certified C on C.eid = E.eid
+JOIN Aircraft A on C.aid = A.aid
+WHERE A.aname like ‘%Boeing%’;
+
+
+5)
+SELECT A.aid 
+FROM Aircraft 
+WHERE A.cruisingRange >= ( SELECT min distance FROM Flights WHERE TO = 'Chicago' and FROM = 'Los Angeles') ;
+
+
+6)
+SELECT Distinct F.to, F.FROM
+FROM Flights F
+WHERE EXISTS ( SELECT * FROM Employees E
+WHERE E.salary > 100000)
+         And ( SELECT * FROM
+Aircraft A, Certified C WHERE
+A.cruisingrange > F.distance And
+E.eid = C.eid And A.aid = C.aid);
+
+
+7)
+SELECT DISTINCT f1.departs,f2.departs, f3.departs
+FROM Flights f1
+JOIN Flights f2 ON f1.to = f2.FROM
+LEFT JOIN Flights f3 ON f2.to = f3.FROM
+WHERE f1.FROM = 'Madison' AND f3.to = 'New York'
+AND f1.arrives <= '18:00' AND f2.arrives <= '18:00' AND f3.arrives <= '18:00';
+
+
+8)
+SELECT ((SELECT AVG(salary) FROM employees INNER JOIN certified ON employees.eid=certified.eid) – (SELECT AVG(salary) FROM employees)) AS average_difference;
+
+
+9)
+SELECT E.name, E.salary FROM Employees E
+LEFT JOIN Certified C on E.eid=C.eid
+WHERE c.eid is Null 
+And E.salary > (SELECT AVG (E.salary) AS avg(salary)
+FROM Employees E
+WHERE E.eid IN (SELECT Distinct C.eid FROM Certified C ))
+
+
+10)
+SELECT E.ename FROM
+Employees E, Certified C, Aircraft A
+WHERE C.aid = A.aid
+AND E.eid = C.eid
+GROUP BY
+E.eid, E.ename
+HAVING (A.cruisingrange > 1000);
+
+
+11)
+SELECT e.name FROM employees e 
+JOIN certified c on c.eid=e.eid
+WHERE c.aid in (SELECT count (a.aid) FROM aircraft a WHERE a.cruisingrange > 1000) >= 2;
+
+
+12)
+SELECT E.name FROM Employees E 
+JOIN certified C on C.eid = E.eid
+WHERE c.aid in (SELECT A.aid FROM aircraft a WHERE a.cruisingrange > 1000 and a.name like ‘%Boeing%’);
+
+
+
+
+Question 4:
+  
+1)
+CREATE TABLE Emp (
+            eid INTEGER PRIMARY KEY,
+            ename CHAR(10),
+            age INTEGER,
+            salary REAL CHECK (salary >= 10000)
+);
+
+
+        
+2)
+CREATE TABLE Dept ( 
+        did Integer Primary key,
+        budget Real,
+        managerid Integer ,
+        Foreign key (managerid) References Emp,
+        Check (
+( SELECT EM.age FROM Emp EM, Dept DP)
+         WHERE EM.eid = DP.managerid ) > 30 
+);
+
+
+
+
+3)
+Create Assertion ManagerAgeCheck CHECK 
+((SELECT EM.age FROM Emp EM, Dept DPWHERE EM.eid = DP.managerid ) > 30);
+
+
+In this case, the table constraint approach is better because the constraint logic lies directly within the table definition, which makes it more efficient and affordable. At Table level here, data integrity is observed, which enforce such likable  rules in a relational database.
+
+
+4)        
+
+
+CREATE TABLE Emp (
+        eid INTEGER PRIMARY KEY,
+        ename CHAR(10),
+        age INTEGER,
+        salary REAL
+);
+
+CREATE TABLE Works ( 
+        eid INTEGER,
+        did INTEGER,
+        pcttime INTEGER,
+        PRIMARY KEY (eid, did),
+        FOREIGN KEY (did) REFERENCES Dept,
+        ON DELETE SET NULL
+        FOREIGN KEY (eid) REFERENCES Emp,
+        ON DELETE SET NULL
+);
+
+CREATE TABLE Dept ( 
+        did INTEGER PRIMARY KEY,
+        budget REAL,
+        managerid INTEGER,
+        FOREIGN KEY (managerid) REFERENCES Emp,
+        ON DELETE SET NULL
+);
